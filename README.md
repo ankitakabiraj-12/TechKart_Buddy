@@ -1,17 +1,13 @@
-# techkart_buddy
+# TechKart_Buddy
 
-A new Flutter project.
+TechKart Buddy — Seller and Admin mobile application built with Flutter and Dart.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+A few resources to get you started with Flutter:
 
-A few resources to get you started if this is your first Flutter project:
+- https://docs.flutter.dev/get-started/learn-flutter
+- https://docs.flutter.dev/get-started/codelab
+- https://docs.flutter.dev/reference/learning-resources
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For Flutter documentation, visit https://docs.flutter.dev/.
