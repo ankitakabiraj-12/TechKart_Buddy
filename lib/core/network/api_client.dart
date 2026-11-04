@@ -288,14 +288,54 @@ class ApiClient {
 
       return _handleResponse<T>(httpResponse, fromJsonData: fromJsonData);
     } on ConnectionTimeoutException {
+      final fallback = await _tryLanFallback<T>(
+        method: method,
+        uri: uri,
+        headers: headers,
+        body: body,
+        connectTimeout: effectiveConnectTimeout,
+        responseTimeout: effectiveResponseTimeout,
+        fromJsonData: fromJsonData,
+      );
+      if (fallback != null) return fallback;
       rethrow;
     } on ResponseTimeoutException {
       rethrow;
     } on TimeoutException {
+      final fallback = await _tryLanFallback<T>(
+        method: method,
+        uri: uri,
+        headers: headers,
+        body: body,
+        connectTimeout: effectiveConnectTimeout,
+        responseTimeout: effectiveResponseTimeout,
+        fromJsonData: fromJsonData,
+      );
+      if (fallback != null) return fallback;
       throw const ConnectionTimeoutException();
     } on SocketException {
+      final fallback = await _tryLanFallback<T>(
+        method: method,
+        uri: uri,
+        headers: headers,
+        body: body,
+        connectTimeout: effectiveConnectTimeout,
+        responseTimeout: effectiveResponseTimeout,
+        fromJsonData: fromJsonData,
+      );
+      if (fallback != null) return fallback;
       throw const NetworkException();
     } on http.ClientException {
+      final fallback = await _tryLanFallback<T>(
+        method: method,
+        uri: uri,
+        headers: headers,
+        body: body,
+        connectTimeout: effectiveConnectTimeout,
+        responseTimeout: effectiveResponseTimeout,
+        fromJsonData: fromJsonData,
+      );
+      if (fallback != null) return fallback;
       throw const NetworkException();
     } on ApiException {
       rethrow;
@@ -345,6 +385,52 @@ class ApiClient {
       case 500:
       default:
         throw ServerException(message: message, statusCode: statusCode, details: errors);
+    }
+  }
+
+  Future<ApiResponse<T>?> _tryLanFallback<T>({
+    required String method,
+    required Uri uri,
+    required Map<String, String> headers,
+    dynamic body,
+    required Duration connectTimeout,
+    required Duration responseTimeout,
+    T Function(dynamic data)? fromJsonData,
+  }) async {
+    final usesLoopback =
+        _baseUrl.contains('127.0.0.1') || _baseUrl.contains('localhost');
+    if (!Platform.isAndroid || !usesLoopback) return null;
+
+    try {
+      final fallbackUri = Uri.parse(
+        uri.toString().replaceFirst(_baseUrl, ApiConfig.fallbackBaseUrl),
+      );
+      final request = http.Request(method, fallbackUri);
+      request.headers.addAll(headers);
+      if (body != null) request.body = jsonEncode(body);
+
+      final streamedResponse = await _httpClient
+          .send(request)
+          .timeout(connectTimeout);
+      final responseBody = await streamedResponse.stream
+          .bytesToString()
+          .timeout(responseTimeout);
+      final response = http.Response(
+        responseBody,
+        streamedResponse.statusCode,
+        headers: streamedResponse.headers,
+        request: streamedResponse.request,
+        isRedirect: streamedResponse.isRedirect,
+        persistentConnection: streamedResponse.persistentConnection,
+        reasonPhrase: streamedResponse.reasonPhrase,
+      );
+
+      ApiConfig.baseUrl = ApiConfig.fallbackBaseUrl;
+      return _handleResponse<T>(response, fromJsonData: fromJsonData);
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      return null;
     }
   }
 

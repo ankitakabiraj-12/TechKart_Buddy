@@ -532,7 +532,7 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildRequiredLabel('Division'),
+                              _buildRequiredLabel('State / Region'),
                               const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -547,7 +547,16 @@ class _BusinessDetailsState extends State<BusinessDetails> {
                                     isExpanded: true,
                                     icon: const Icon(Icons.keyboard_arrow_down_rounded,
                                         size: 18, color: Color(0xFF4C5D70)),
-                                    items: ['Mumbai', 'Bengaluru', 'Delhi', 'Rajshahi']
+                                    items: [
+                                      'Maharashtra',
+                                      'Karnataka',
+                                      'Delhi',
+                                      'Tamil Nadu',
+                                      'Gujarat',
+                                      'Uttar Pradesh',
+                                      'West Bengal',
+                                      'Telangana',
+                                    ]
                                         .map((d) => DropdownMenuItem(
                                               value: d,
                                               child: Text(
